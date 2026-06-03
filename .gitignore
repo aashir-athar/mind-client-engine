@@ -1,0 +1,26 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next
+/out
+/build
+
+# env — local secrets/overrides (NEVER commit these)
+.env*.local
+
+# prisma — generated client + local sqlite database files
+/src/generated
+/prisma/*.db
+/prisma/*.db-journal
+/prisma/*.db-wal
+/prisma/*.db-shm
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+*.log
+.DS_Store
+/coverage

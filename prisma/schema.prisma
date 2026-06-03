@@ -1,0 +1,167 @@
+// MiND Client Engine — Prisma schema (Phase 1: full data model)
+//
+// SQLite has no native enum type, so status / band / channel / reason / etc. are
+// stored as String. The allowed values live in src/lib/constants.ts as typed
+// unions so application code stays honest. Datetimes use the relative SQLite file
+// configured in prisma.config.ts (Prisma 7 moved the url out of this schema).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  // Connection URL lives in prisma.config.ts (Migrate) / the driver adapter (runtime).
+}
+
+/// A prospective client discovered or pasted into the system.
+model Lead {
+  id           String  @id @default(cuid())
+  businessName String
+  contactName  String?
+
+  // Contact channels
+  website   String?
+  email     String? @unique // null allowed; unique enforces email-level dedupe
+  instagram String?
+  linkedin  String?
+  twitter   String?
+  whatsapp  String?
+
+  // Context
+  location  String?
+  industry  String?
+
+  // Provenance
+  sourceType   String? // OVERPASS | REDDIT | RSS | PASTE | MANUAL (see constants.ts)
+  sourceUrl    String?
+  discoveredAt DateTime @default(now())
+
+  // Qualification
+  painPoint      String?
+  matchedService String?
+  score          Int     @default(0) // 0–100
+  scoreBand      String  @default("NOT_USEFUL") // HOT | WARM | LOW | NOT_USEFUL
+
+  // Pipeline
+  status          String    @default("NEW") // NEW | CONTACTED | ... | WON | LOST | IGNORE
+  notes           String?
+  lastContactedAt DateTime?
+  nextFollowUpAt  DateTime?
+  repliesCount    Int       @default(0)
+  wonValue        Float     @default(0) // $ value when status = WON (feeds goal tracker)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages  Message[]
+  followUps FollowUpTask[]
+  audits    AuditResult[]
+
+  @@index([status])
+  @@index([scoreBand])
+  @@index([nextFollowUpAt])
+  @@index([sourceType])
+}
+
+/// Every outbound/inbound message across every channel (full audit trail).
+model Message {
+  id        String @id @default(cuid())
+  leadId    String
+  lead      Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  channel      String  // EMAIL | LINKEDIN | INSTAGRAM | WHATSAPP | TWITTER | UPWORK | REDDIT
+  direction    String  @default("OUT") // OUT | IN
+  subject      String? // used for EMAIL; null for channels without subjects
+  body         String
+  status       String  @default("DRAFT") // DRAFT | APPROVED | SENT | FAILED
+  sequenceStep Int     @default(0) // 0 = initial outreach; 1..n = follow-ups
+  providerId   String? // inbound dedupe key (IMAP Message-ID/UID); null for outbound/manual
+
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  // Inbound idempotency key. The single-worker poll lock makes the app-level
+  // pre-check sufficient; for multi-process polling, upgrade this to @@unique.
+  @@index([providerId])
+  @@index([leadId])
+  @@index([status])
+  @@index([channel])
+}
+
+/// A scheduled follow-up the worker acts on (auto-send for email, draft otherwise).
+model FollowUpTask {
+  id        String @id @default(cuid())
+  leadId    String
+  lead      Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  dueAt        DateTime
+  sequenceStep Int      @default(1)
+  channel      String   // EMAIL | ...
+  status       String   @default("PENDING") // PENDING | DONE | CANCELLED
+
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([dueAt])
+  @@index([leadId])
+}
+
+/// Result of a website audit (HTTPS, mobile, size, SEO, optional PageSpeed).
+model AuditResult {
+  id     String  @id @default(cuid())
+  leadId String?
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  url            String
+  https          Boolean
+  mobileFriendly Boolean
+  pageSizeKb     Int?
+  hasSeoBasics   Boolean
+  pageSpeedScore Int? // 0–100, null when PageSpeed was not run
+  summary        String
+
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+}
+
+/// Addresses/handles we must never contact (unsubscribe / said no / bounced).
+model Suppression {
+  id        String   @id @default(cuid())
+  value     String   @unique // the email address or social handle
+  kind      String   @default("EMAIL") // EMAIL | HANDLE
+  reason    String   // UNSUBSCRIBE | SAID_NO | BOUNCED
+  createdAt DateTime @default(now())
+}
+
+/// Single editable settings row (id is fixed to "singleton"). Secrets stay in env.
+model Settings {
+  id String @id @default("singleton")
+
+  servicesOffered String // JSON array of service names (see constants.SERVICES)
+
+  dailyEmailCap   Int @default(20)
+  sendWindowStart Int @default(9) // 24h local hour, inclusive
+  sendWindowEnd   Int @default(18) // 24h local hour, exclusive
+
+  llmProvider String @default("ollama")
+  llmModel    String @default("llama3.2:1b")
+  llmHost     String @default("http://127.0.0.1:11434")
+
+  goalTargetUsd Float    @default(10000)
+  goalDeadline  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Generic action / DRY_RUN audit log (e.g. EMAIL_DRY_RUN, WORKER_HEARTBEAT, SEED).
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  detail    String?
+  dryRun    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

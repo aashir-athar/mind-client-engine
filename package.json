@@ -1,0 +1,51 @@
+{
+  "name": "mind-client-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MiND Client Engine — local-first, free automated business-development assistant",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "worker": "tsx worker/index.ts",
+    "worker:dev": "tsx watch worker/index.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev && prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "demo": "tsx scripts/demo-e2e.ts",
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@next/env": "^16.2.6",
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.10.0",
+    "cheerio": "^1.2.0",
+    "date-fns": "^4.4.0",
+    "imapflow": "^1.3.4",
+    "mailparser": "^3.9.9",
+    "next": "^16.2.6",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.10",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "robots-parser": "^3.0.1",
+    "rss-parser": "^3.13.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/imapflow": "^1.0.23",
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^25.9.1",
+    "@types/nodemailer": "^8.0.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "prisma": "^7.8.0",
+    "tsx": "^4.22.3",
+    "typescript": "^5"
+  }
+}
