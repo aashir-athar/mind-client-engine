@@ -1,66 +1,101 @@
-# MiND Client Engine
+<div align="center">
 
-A **local-first, 100% free** automated business-development assistant for a freelance
-developer/creator. It discovers leads, scores them, audits their websites, drafts
-personalized outreach, safely automates cold email (under strict limits), schedules
-follow-ups, tracks replies, and shows everything on a dashboard with a **dynamic
-goal tracker**.
+<h1>🧠 MiND Client Engine</h1>
 
-Runs entirely on your machine for **$0** — no paid services, no paid APIs required.
+<p><strong>A local-first, 100% free automated business-development assistant — built with Next.js, Prisma & SQLite.</strong></p>
 
-> **Status: complete (Phases 0–11).** Verified end-to-end in DRY_RUN on seed data:
-> discover → score → audit → draft → "send" (logged) → follow-up scheduled + sent →
-> reply logged → goal updated. Run it yourself with `npm run demo`.
+<p>Lead discovery · website auditing · explainable scoring · LLM-personalized outreach · follow-up scheduling · dynamic goal tracker — all running on your machine for <strong>$0</strong>.</p>
 
----
+[![Stars](https://img.shields.io/github/stars/aashir-athar/mind-client-engine?style=for-the-badge&logo=github&color=FFD33D)](https://github.com/aashir-athar/mind-client-engine/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/aashir-athar/mind-client-engine?style=for-the-badge)](https://github.com/aashir-athar/mind-client-engine/commits)
+[![Top language](https://img.shields.io/github/languages/top/aashir-athar/mind-client-engine?style=for-the-badge&logo=typescript&logoColor=white)](https://github.com/aashir-athar/mind-client-engine)
+[![Repo size](https://img.shields.io/github/repo-size/aashir-athar/mind-client-engine?style=for-the-badge)](https://github.com/aashir-athar/mind-client-engine)
 
-## Core principles (enforced in code, not just docs)
+<a href="#-getting-started"><strong>Get Started</strong></a> ·
+<a href="#-features"><strong>Features</strong></a> ·
+<a href="https://github.com/aashir-athar/mind-client-engine/issues"><strong>Report Bug</strong></a> ·
+<a href="https://github.com/aashir-athar/mind-client-engine/issues"><strong>Request Feature</strong></a>
 
-- **Everything free.** No paid dependency is ever required.
-- **DRY_RUN by default.** With `DRY_RUN=true` (the default) nothing is actually sent —
-  outbound actions are logged to the console and written to the `AuditLog` table, and
-  treated as sent so the whole pipeline can run safely. Your email reputation is never
-  touched while developing.
-- **Human-in-the-loop.** Only cold email is auto-sent (under hard caps + suppression +
-  dedupe). Every other channel produces a **draft** you approve and send manually.
-- **No ToS-violating scrapers.** LinkedIn/Instagram/X/Upwork use a *paste-&-enrich*
-  workflow plus ready-made manual search links — never automation.
-- **Respect robots.txt** and use only public data. All outbound fetches send a
-  descriptive `User-Agent` and stay within free rate limits.
+</div>
 
 ---
 
-## Prerequisites
+**MiND Client Engine** is a local-first, privacy-first sales-automation app for freelance developers and creators. It discovers leads, scores them with explainable rules, audits their websites, drafts personalized cold outreach with a local LLM, safely automates cold email under strict limits, schedules follow-ups, tracks replies, and surfaces everything on a dashboard with a **dynamic goal tracker** — running entirely on your own machine with no paid services and no paid APIs.
 
-| Tool | Version | Notes |
-|------|---------|-------|
-| Node.js | 20+ (built on 24.7) | `node --version` |
-| npm | 10+ (built on 11) | ships with Node |
-| Ollama | latest (optional) | Free **local** LLM. Install from <https://ollama.com>, then `ollama pull llama3.2:1b`. Without it, outreach falls back to deterministic templates — the app still works. |
-| VS C++ Build Tools | only if needed | `better-sqlite3` is native; Node 24 x64 usually has a prebuilt binary. If install fails, see _SQLite fallback_. |
+Think of it as a self-hosted, single-user CRM + outreach engine. Built on **Next.js (App Router)**, **Prisma 7**, and **SQLite**, it ships **DRY_RUN-safe by default**: nothing is ever sent while you develop, so your email reputation is never at risk.
 
----
+> 🚦 **DRY_RUN by default.** With `DRY_RUN=true`, outbound actions are logged and written to the `AuditLog` table — treated as "sent" so the full pipeline runs safely without touching real inboxes.
 
-## Setup
+## ✨ Features
 
-From the project root:
+| | Feature | Description |
+|---|---|---|
+| 🔎 | **Lead discovery** | Keyless OpenStreetMap (Overpass + Nominatim), RSS feeds, optional Reddit API, and a Paste-&-Enrich workflow. Dedupe by email/domain/source. |
+| 🧮 | **Explainable scoring** | Deterministic, weighted rules → a 0–100 score + band (HOT/WARM/LOW), with an optional local-LLM tie-break near band edges. |
+| 🩺 | **Website auditing** | robots.txt-respecting fetch via cheerio: HTTPS, mobile viewport, page size, SEO signals — plus optional PageSpeed (free key). |
+| ✍️ | **LLM outreach** | Per-service, per-channel templates personalized with a **free local LLM (Ollama)** — with deterministic template fallback if the model is offline. |
+| 📧 | **Safe cold email** | Nodemailer SMTP gated by suppression → daily cap → send window → DRY_RUN, with an unsubscribe footer and step-level dedupe. |
+| ⏰ | **Follow-up scheduling** | A `node-cron` worker runs Day 1/3/7/14 sequences; email auto-sends, other channels draft, and the sequence stops on reply or opt-out. |
+| 📥 | **Reply tracking** | Optional IMAP polling of your own inbox (or manual logging) auto-sets `REPLIED`, cancels follow-ups, and suppresses opt-outs. |
+| 🎯 | **Dynamic goal tracker** | Computes required monthly income, clients needed, conversion, and suggested daily outreach from today's date and won revenue. |
 
-```powershell
-npm install                       # installs deps (+ runs prisma generate)
-copy .env.example .env.local      # then edit .env.local for any secrets (optional in DRY_RUN)
-npm run db:migrate                # creates prisma/dev.db + applies migrations + generates client
-npm run db:seed                   # loads a small, varied sample dataset
-ollama pull llama3.2:1b           # optional: enables LLM-personalized drafts
+> 🚧 **Status: complete (Phases 0–11).** Verified end-to-end in DRY_RUN on seed data: discover → score → audit → draft → "send" → follow-up → reply → goal updated. This is a single-user local app under active iteration.
+
+## 🛠️ Tech Stack
+
+<div align="center">
+
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma_7-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
+
+</div>
+
+| Layer | Technology |
+|---|---|
+| **Framework** | Next.js 16 (App Router), React 19 |
+| **Language** | TypeScript 5 (strict) |
+| **Database** | SQLite via Prisma 7 (`better-sqlite3` driver adapter) |
+| **Validation** | Zod |
+| **Email / Inbox** | Nodemailer (SMTP) · ImapFlow + mailparser (IMAP) |
+| **Scheduling** | node-cron worker process |
+| **Scraping / Audit** | cheerio · robots-parser · rss-parser |
+| **LLM** | Local Ollama (`llama3.2:1b`), pluggable in `src/lib/llm.ts` |
+| **Tooling** | tsx · node:test |
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** `>= 20` (built on 24.7)
+- **npm** `>= 10` (ships with Node)
+- **Ollama** (optional) — free local LLM. Install from [ollama.com](https://ollama.com), then `ollama pull llama3.2:1b`. Without it, outreach falls back to deterministic templates and the app still works.
+
+### Installation
+
+```bash
+git clone https://github.com/aashir-athar/mind-client-engine.git
+cd mind-client-engine
+npm install                  # installs deps (+ runs prisma generate)
 ```
 
-`.env` holds committed non-secret defaults; `.env.local` (git-ignored) holds your
-secrets and overrides `.env`. `.env.example` lists **every** variable.
+### Configure & seed
 
----
+```bash
+cp .env.example .env.local   # edit for any secrets (optional in DRY_RUN)
+npm run db:migrate           # creates prisma/dev.db + applies migrations + generates client
+npm run db:seed              # loads a small, varied sample dataset
+```
 
-## Run
+> `.env` holds committed non-secret defaults; `.env.local` (git-ignored) holds your secrets and overrides `.env`. `.env.example` lists **every** variable. On Windows PowerShell, use `copy .env.example .env.local`.
 
-```powershell
+### Run
+
+```bash
 # Terminal 1 — the dashboard
 npm run dev          # http://localhost:3000
 
@@ -68,109 +103,93 @@ npm run dev          # http://localhost:3000
 npm run worker
 ```
 
-Start **both from the project root** so the relative SQLite path resolves to the same DB.
+Start **both from the project root** so the relative SQLite path resolves to the same database.
 
-### Try the whole pipeline in one command
+## 📖 Usage
 
-```powershell
+Run the full pipeline end-to-end in a single command, or execute the test suite:
+
+```bash
 npm run demo         # full DRY_RUN end-to-end demo on a throwaway lead, with a pass/fail report
-npm test             # 45 unit tests (pure logic: audit, scoring, sources, outreach, email, follow-ups, replies, goal)
+npm test             # unit tests (audit, scoring, sources, outreach, email, follow-ups, replies, goal)
 ```
 
----
+The dashboard exposes the whole workflow across its pages:
 
-## Dashboard pages
-
-- **Overview** (`/`) — KPIs (leads, hot, messages sent, replies, follow-ups, won, revenue),
-  the **dynamic goal tracker** (progress, required monthly income, clients needed,
-  conversion, suggested daily outreach — all computed from today's date), and this-week stats.
-- **Leads** (`/leads`) — filter by status/band/source/service + search; sortable columns.
-- **Lead detail** (`/leads/[id]`) — contact info, **explainable score breakdown**, website
-  audit, full timeline, status/notes editing, **generate outreach**, **log a reply**, suppress.
+- **Overview** (`/`) — KPIs (leads, hot, sent, replies, follow-ups, won, revenue) + the dynamic goal tracker.
+- **Leads** (`/leads`) — filter by status/band/source/service, search, and sort.
+- **Lead detail** (`/leads/[id]`) — explainable score breakdown, website audit, timeline, generate outreach, log a reply.
 - **Discover** (`/sources`) — Paste-&-Enrich, OSM/RSS/Reddit triggers, manual search links.
-- **Outreach Queue** (`/outreach`) — approve / edit / send / discard drafts (DRY_RUN banner).
+- **Outreach Queue** (`/outreach`) — approve / edit / send / discard drafts (with a DRY_RUN banner).
 - **Replies** (`/replies`) — inbound reply log + IMAP status.
 - **Settings** (`/settings`) — editable goal target/deadline; read-only env config.
 
----
-
-## Modules
-
-| Module | Where | What |
-|---|---|---|
-| Website Auditor | `lib/audit-analyze.ts`, `lib/audit-site.ts` | robots.txt-respecting fetch + cheerio: HTTPS, mobile viewport, page size, SEO; optional keyless PageSpeed (only if `PSI_KEY` set). |
-| Scoring Engine | `lib/scoring.ts`, `lib/scoring-run.ts` | deterministic, explainable weighted rules → 0–100 + band; optional graceful LLM tie-break near band edges. |
-| Lead Sources | `lib/sources/*` | Overpass + Nominatim (keyless), Reddit OAuth (optional), RSS feeds, Paste-&-Enrich; dedupe by email/domain/sourceUrl. |
-| Outreach | `lib/outreach/*` | per-service/per-channel templates, LLM-personalized with template fallback; email = draft→send, other channels = draft. |
-| Email Engine | `lib/email.ts`, `lib/email-policy.ts` | Nodemailer SMTP; suppression → daily cap → send window → DRY_RUN; unsubscribe footer; step-dedupe. |
-| Follow-ups | `lib/followups*.ts`, `worker/` | node-cron Day 1/3/7/14; email auto-sends, others draft; stops on reply/"no"/unsubscribe. |
-| Replies | `lib/replies*.ts`, `lib/imap.ts` | optional IMAP polling (own inbox) or manual log; auto-set REPLIED + cancel follow-ups; opt-out → suppress. |
-| Goal Tracker | `lib/goal.ts` | dynamic from today + WON revenue; required monthly, clients needed, conversion, suggested daily outreach. |
-
----
-
-## Environment variables
+<details>
+<summary><strong>Key environment variables</strong></summary>
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `DATABASE_URL` | `file:./prisma/dev.db` | SQLite path (relative — run from root). |
 | `DRY_RUN` | `true` | **Safety.** `true` = nothing sent. Set `false` to send real email. |
-| `USER_AGENT` | `MiNDClientEngine/0.1 (+url)` | Sent on all public-data fetches. **Don't use a fake `example.com` contact — OSM/Nominatim block it.** |
-| `LLM_PROVIDER` / `OLLAMA_HOST` / `OLLAMA_MODEL` | `ollama` / `127.0.0.1:11434` / `llama3.2:1b` | Local LLM (pluggable in `lib/llm.ts`). |
-| `AUDIT_TIMEOUT_MS` / `PSI_KEY` | `12000` / _empty_ | Auditor fetch timeout; optional PageSpeed key. |
-| `REDDIT_CLIENT_ID/SECRET/USERNAME/PASSWORD/USER_AGENT` | _empty_ | Optional Reddit source (free "script" app). |
-| `RSS_FEEDS` | built-in set | Comma-separated feed URLs. |
-| `SMTP_HOST/PORT/SECURE/USER/PASS/FROM` | _empty_ | Email send (only when `DRY_RUN=false`). |
+| `USER_AGENT` | `MiNDClientEngine/0.1 (+url)` | Sent on all public-data fetches. Use a **real** URL/email — OSM/Nominatim block fake `example.com` contacts. |
+| `LLM_PROVIDER` / `OLLAMA_HOST` / `OLLAMA_MODEL` | `ollama` / `127.0.0.1:11434` / `llama3.2:1b` | Local LLM config. |
+| `SMTP_*` | _empty_ | Email send (only when `DRY_RUN=false`). |
 | `EMAIL_DAILY_CAP` / `SEND_WINDOW_START` / `SEND_WINDOW_END` | `20` / `9` / `18` | Cold-email safety limits. |
-| `IMAP_HOST/PORT/SECURE/USER/PASS` / `IMAP_POLL_MINUTES` | _empty_ / `5` | Optional reply detection. |
+| `IMAP_*` / `IMAP_POLL_MINUTES` | _empty_ / `5` | Optional reply detection. |
 | `GOAL_TARGET_USD` / `GOAL_DEADLINE` | `10000` / `2027-09-30` | Goal defaults (editable on Settings). |
 
+See [`.env.example`](./.env.example) for the complete list.
+
+</details>
+
+## 🧭 Design Principles
+
+- **Everything free.** No paid dependency is ever required.
+- **DRY_RUN by default.** Nothing is sent while developing; outbound actions are logged to the `AuditLog`.
+- **Human-in-the-loop.** Only cold email auto-sends (under hard caps + suppression + dedupe). Every other channel produces a draft you approve manually.
+- **No ToS-violating scrapers.** LinkedIn/Instagram/X/Upwork use a paste-&-enrich workflow + manual search links — never automation.
+- **Respect robots.txt** and use only public data, with a descriptive `User-Agent` and free rate limits.
+
+## 🗺️ Roadmap
+
+- [x] Lead discovery (OSM, RSS, Reddit, Paste-&-Enrich)
+- [x] Explainable scoring engine + band tie-break
+- [x] robots.txt-respecting website auditor
+- [x] LLM-personalized outreach with template fallback
+- [x] DRY_RUN-safe cold email with caps + suppression
+- [x] Follow-up scheduler + IMAP reply tracking
+- [x] Dynamic goal tracker dashboard
+- [ ] Additional pluggable lead sources
+- [ ] Configurable scoring weights in the UI
+
+## 🤝 Contributing
+
+Contributions are welcome. This is a single-user local app, so please open an issue first for any major change.
+
+1. Fork the repo
+2. Create a branch (`git checkout -b feat/thing`)
+3. Commit, push, and open a PR
+
+## 📄 License
+
+No license file is currently included in this repository. Please open an issue if you would like to discuss reuse or licensing terms.
+
+## 👤 Author
+
+**Aashir Athar**
+
+[![GitHub](https://img.shields.io/badge/GitHub-aashir--athar-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/aashir-athar)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-aashirathar-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/aashirathar/)
+[![X](https://img.shields.io/badge/X_(Twitter)-aashirathar-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/aashirathar)
+
 ---
 
-## Architecture
+<div align="center">
 
-```
-prisma/        schema.prisma (Lead, Message, FollowUpTask, AuditResult, Suppression, Settings, AuditLog),
-               migrations/, seed.ts
-src/app/       Next.js App Router pages + API routes (/api/health, /api/audit, /api/outreach, /api/sources/*)
-src/lib/       shared business logic (db singleton, config, llm, scoring, audit, sources, outreach,
-               email, followups, replies, imap, goal) — imported by BOTH the app and the worker
-worker/        standalone node-cron process (follow-up scheduler + IMAP poll)
-scripts/       verify-phase7/8/9 + demo-e2e (run with tsx)
-test/          node:test unit tests (run with `npm test`)
-```
+<sub>Built by <a href="https://github.com/aashir-athar">aashir-athar</a> · If this helped you, consider leaving a ⭐</sub>
 
-One shared **Prisma driver-adapter singleton** (`src/lib/db.ts`) is used by both the
-Next.js app and the worker. The worker loads `.env` via `@next/env` (same precedence as Next).
+<br/><br/>
 
----
+<sub><strong>Keywords:</strong> local-first CRM · sales automation · cold email outreach · lead generation · Next.js · Prisma · SQLite · TypeScript · Ollama LLM · self-hosted business-development tool · privacy-first · DRY_RUN-safe</sub>
 
-## Troubleshooting
-
-- **Ollama not running / model not pulled** — outreach drafts fall back to deterministic
-  templates (no crash). Start Ollama and `ollama pull llama3.2:1b` for LLM personalization.
-- **`better-sqlite3` won't build (no VS C++ tools)** — switch to the pure-JS libSQL adapter:
-  `npm install @prisma/adapter-libsql @libsql/client`, then in `src/lib/db.ts` use
-  `new PrismaLibSQL({ url: process.env.DATABASE_URL })`. No other change.
-- **Nominatim/Overpass return 403** — your `USER_AGENT` contains a fake `example.com`
-  contact; use a real URL/email.
-- **`prisma migrate dev` says "non-interactive"** — a constraint change needs confirmation;
-  run it in an interactive terminal, or use `prisma db push` for local-only dev.
-- **First page load is slow (~5s)** — one-time Turbopack compile of the route + generated
-  Prisma client; warm requests are ~200ms. (Windows may warn the `D:` drive is "slow".)
-
-## Security / known advisories
-
-`npm audit` reports **5 moderate** advisories, all in **dev/build tooling** (`postcss`
-via Next's build pipeline, `@prisma/dev`/`@hono/node-server` in Prisma's dev tools) — not
-in the runtime request path, and this is a local single-user app. **Do not run
-`npm audit fix --force`**: its only "fix" downgrades Next.js to v9 (a breaking change that
-would destroy the app). These clear as Next/Prisma update their transitive deps.
-
-## Compliance & anti-ban (enforced)
-
-Public data only; robots.txt respected; no automation on ToS-restricted platforms; strict
-daily email caps + randomized human-like delays; unsubscribe footer + suppression list
-(never re-contact suppressed/"said no"/bounced); step-dedupe; full audit log of every
-outbound/inbound action; human approval gate for everything except rate-limited cold email.
-OSM data (Overpass/Nominatim) is ODbL — attribute it wherever you surface results.
+</div>
